@@ -4,6 +4,7 @@
 #include "Character/GSCharacterBase.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Character/GSCharacterControlData.h"
 
 // Sets default values
 AGSCharacterBase::AGSCharacterBase()
@@ -42,4 +43,18 @@ AGSCharacterBase::AGSCharacterBase()
 	{
 		GetMesh()->SetAnimInstanceClass(AnimInstanceClassRef.Class);
 	}
+
+	// CharacterControlData
+	ConstructorHelpers::FObjectFinder<UGSCharacterControlData> ShoulderDataRef(TEXT("/Script/GenShin.GSCharacterControlData'/Game/GenShin/CharacterControlData/GSC_Sholder.GSC_Sholder'"));
+	if (ShoulderDataRef.Object)
+	{
+		CharacterControlManager.Add(ECharacterControlType::Shoulder, ShoulderDataRef.Object);
+	}
+
+	ConstructorHelpers::FObjectFinder<UGSCharacterControlData> QuaterDataRef(TEXT("/Script/GenShin.GSCharacterControlData'/Game/GenShin/CharacterControlData/GSC_Quater.GSC_Quater'"));
+	if (QuaterDataRef.Object)
+	{
+		CharacterControlManager.Add(ECharacterControlType::Shoulder, QuaterDataRef.Object);
+	}
+
 }

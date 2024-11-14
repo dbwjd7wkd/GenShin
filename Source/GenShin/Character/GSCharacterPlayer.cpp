@@ -7,6 +7,7 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Character/GSCharacterControlData.h"
 
 AGSCharacterPlayer::AGSCharacterPlayer()
 {
@@ -17,20 +18,14 @@ AGSCharacterPlayer::AGSCharacterPlayer()
 	CameraBoom->bUsePawnControlRotation = true;
 
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // SocketName을 적으면 스프링암 끝에 카메라가 달라붙음.
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
 	// Input
-	static ConstructorHelpers::FObjectFinder<UInputMappingContext> InputMappingContextRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/GenShin/Input/IMC_Default.IMC_Default'"));
-	if (InputMappingContextRef.Object)
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionChangeControlRef(TEXT("/Script/EnhancedInput.InputAction'/Game/GenShin/Input/Actions/IA_ChangeControl.IA_ChangeControl'"));
+	if (InputActionChangeControlRef.Object)
 	{
-		DefaultMappingContext = InputMappingContextRef.Object;
-	}
-
-	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/GenShin/Input/Actions/IA_Move.IA_Move'"));
-	if (InputActionMoveRef.Object)
-	{
-		MoveAction = InputActionMoveRef.Object;
+		ChangeControlAction = InputActionChangeControlRef.Object;
 	}
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionJumpRef(TEXT("/Script/EnhancedInput.InputAction'/Game/GenShin/Input/Actions/IA_Jump.IA_Jump'"));
@@ -39,25 +34,32 @@ AGSCharacterPlayer::AGSCharacterPlayer()
 		JumpAction = InputActionJumpRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionLookRef(TEXT("/Script/EnhancedInput.InputAction'/Game/GenShin/Input/Actions/IA_Look.IA_Look'"));
-	if (InputActionLookRef.Object)
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionShoulderLookRef(TEXT("/Script/EnhancedInput.InputAction'/Game/GenShin/Input/Actions/IA_SholderLook.IA_SholderLook'"));
+	if (InputActionShoulderLookRef.Object)
 	{
-		LookAction = InputActionLookRef.Object;
+		SoulderLookAction = InputActionShoulderLookRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionShoulderMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/GenShin/Input/Actions/IA_SholderMove.IA_SholderMove'"));
+	if (InputActionShoulderMoveRef.Object)
+	{
+		SoulderMoveAction = InputActionShoulderMoveRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionQuaterMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/GenShin/Input/Actions/IA_QuaterMove.IA_QuaterMove'"));
+	if (InputActionQuaterMoveRef.Object)
+	{
+		QuaterMoveAction = InputActionQuaterMoveRef.Object;
+	}
+
+	CurrentCharacterControlType = ECharacterControlType::Quater;
 }
 
 void AGSCharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// 인풋시스템인 SubSystem을 가져와서 매핑 컨텍스트 에셋을 추가.
-	// 컨트롤러가 플레이어 대상으로 설계된 캐릭터 전용 클래스이기 때문에 CastChecked 써줌.
-	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
-	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-	{
-		Subsystem->AddMappingContext(DefaultMappingContext, 0);
-	}
-
+	SetCharacterControl(CurrentCharacterControlType);
 }
 
 void AGSCharacterPlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -67,28 +69,63 @@ void AGSCharacterPlayer::SetupPlayerInputComponent(class UInputComponent* Player
 	// 프로젝트 셋팅에서 EnhancedInputComponent를 사용한다고 지정했기때문에, 사용되지 않는 경우엔 에러를 발생하도록 CastChecked 함수 사용.
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
 
+	EnhancedInputComponent->BindAction(ChangeControlAction, ETriggerEvent::Triggered, this, &AGSCharacterPlayer::ChangeCharacterControl);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
-	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AGSCharacterPlayer::Move);
-	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AGSCharacterPlayer::Look);
+	EnhancedInputComponent->BindAction(SoulderLookAction, ETriggerEvent::Triggered, this, &AGSCharacterPlayer::SoulderLook);
+	EnhancedInputComponent->BindAction(SoulderMoveAction, ETriggerEvent::Triggered, this, &AGSCharacterPlayer::SoulderMove);
+	EnhancedInputComponent->BindAction(QuaterMoveAction, ETriggerEvent::Triggered, this, &AGSCharacterPlayer::QuaterMove);
 }
 
-void AGSCharacterPlayer::Move(const FInputActionValue& Value)
+void AGSCharacterPlayer::ChangeCharacterControl()
 {
-	// FInputActionValue에서 XY값을 가져온 후, 이것들을 무브먼트 컴포넌트와 연결해서 실질적으로 캐릭터를 이동.
-	FVector2D MovementVector = Value.Get<FVector2D>();
-
-	const FRotator Rotation = Controller->GetControlRotation();
-	const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-	AddMovementInput(ForwardDirection, MovementVector.Y);
-	AddMovementInput(RightDirection, MovementVector.X);
+	if (CurrentCharacterControlType == ECharacterControlType::Quater)
+	{
+		SetCharacterControl(ECharacterControlType::Shoulder);
+	}
+	else if (CurrentCharacterControlType == ECharacterControlType::Shoulder)
+	{
+		SetCharacterControl(ECharacterControlType::Quater);
+	}
 }
 
-void AGSCharacterPlayer::Look(const FInputActionValue& Value)
+void AGSCharacterPlayer::SetCharacterControl(ECharacterControlType NewCharacterControlType)
+{
+	// 새로운 타입의 뷰 데이터 오브젝트 들고오기
+	UGSCharacterControlData* NewCharacterControl = CharacterControlManager[NewCharacterControlType];
+	check(NewCharacterControl);
+	// 가져온 뷰 데이터 오브젝트로 설정
+	//SetCharacterControlData(NewCharacterControl);
+
+	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+	{
+		Subsystem->ClearAllMappings();
+		// 가져온 뷰 데이터의 인풋매핑컨텍스트 적용
+		UInputMappingContext* NewMappingContext = NewCharacterControl->InputMappingContext;
+		if (NewMappingContext)
+		{
+			Subsystem->AddMappingContext(NewMappingContext, 0);
+		}
+	}
+	// 현재 뷰 타입 설정
+	CurrentCharacterControlType = NewCharacterControlType;
+}
+
+void AGSCharacterPlayer::SetCharacterControlData(const class UGSCharacterControlData* CharacterControlData)
+{
+	Super::SetCharacterControlData(CharacterControlData);
+
+	CameraBoom->TargetArmLength = CharacterControlData->TargetArmLength;
+	CameraBoom->SetRelativeRotation(CharacterControlData->RelativeRotation);
+	CameraBoom->bUsePawnControlRotation = CharacterControlData->bUsePawnControlRotation;
+	CameraBoom->bInheritPitch = CharacterControlData->bInheritPitch;
+	CameraBoom->bInheritYaw = CharacterControlData->bInheritYaw;
+	CameraBoom->bInheritRoll = CharacterControlData->bInheritRoll;
+	CameraBoom->bDoCollisionTest = CharacterControlData->bDoCollisionTest;
+}
+
+void AGSCharacterPlayer::SoulderLook(const FInputActionValue& Value)
 {
 	// FInputActionValue에서 마우스의 XY값을 가져온 후 컨트롤러의 회전을 설정함으로써, 스프링암이 해당 컨트롤러를 바라보도록 설정.
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
@@ -96,3 +133,24 @@ void AGSCharacterPlayer::Look(const FInputActionValue& Value)
 	AddControllerYawInput(LookAxisVector.X);
 	AddControllerPitchInput(LookAxisVector.Y);
 }
+
+void AGSCharacterPlayer::SoulderMove(const FInputActionValue& Value)
+{
+	// FInputActionValue에서 키보드의 XY값을 가져온 후, 이것들을 무브먼트 컴포넌트와 연결해서 실질적으로 캐릭터를 이동.
+
+	const FRotator Rotation = Controller->GetControlRotation();
+	const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+	FVector2D MovementVector = Value.Get<FVector2D>();
+	AddMovementInput(ForwardDirection, MovementVector.Y);
+	AddMovementInput(RightDirection, MovementVector.X);
+}
+
+void AGSCharacterPlayer::QuaterMove(const FInputActionValue& Value)
+{
+
+}
+

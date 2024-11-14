@@ -6,13 +6,25 @@
 #include "GameFramework/Character.h"
 #include "GSCharacterBase.generated.h"
 
+UENUM()
+enum class ECharacterControlType : uint8
+{
+	Shoulder,
+	Quater
+};
+
 UCLASS()
 class GENSHIN_API AGSCharacterBase : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	AGSCharacterBase();
 
+	// character control section
+protected:
+	virtual void SetCharacterControlData(const class UGSCharacterControlData* CharacterControlData);
+
+	UPROPERTY(EditAnywhere, Category = CharacterControl, Meta = (AllowPrivateAccess = "true"))
+	TMap<ECharacterControlType, TObjectPtr<class UGSCharacterControlData>> CharacterControlManager;
 };
