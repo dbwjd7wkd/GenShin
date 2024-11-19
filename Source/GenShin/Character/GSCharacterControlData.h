@@ -22,7 +22,7 @@ public:
 
 	// pawn section
 	UPROPERTY(EditAnywhere, Category = Pawn)
-	uint32 bUseControllerRotationYaW : 1;
+	uint32 bUseControllerRotationYaw : 1;
 
 	// character movement section
 	UPROPERTY(EditAnywhere, Category = CharacterMovement)

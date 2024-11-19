@@ -45,7 +45,7 @@ AGSCharacterBase::AGSCharacterBase()
 	}
 
 	// CharacterControlData
-	ConstructorHelpers::FObjectFinder<UGSCharacterControlData> ShoulderDataRef(TEXT("/Script/GenShin.GSCharacterControlData'/Game/GenShin/CharacterControlData/GSC_Sholder.GSC_Sholder'"));
+	ConstructorHelpers::FObjectFinder<UGSCharacterControlData> ShoulderDataRef(TEXT("/Script/GenShin.GSCharacterControlData'/Game/GenShin/CharacterControlData/GSC_Shoulder.GSC_Shoulder'"));
 	if (ShoulderDataRef.Object)
 	{
 		CharacterControlManager.Add(ECharacterControlType::Shoulder, ShoulderDataRef.Object);
@@ -54,7 +54,18 @@ AGSCharacterBase::AGSCharacterBase()
 	ConstructorHelpers::FObjectFinder<UGSCharacterControlData> QuaterDataRef(TEXT("/Script/GenShin.GSCharacterControlData'/Game/GenShin/CharacterControlData/GSC_Quater.GSC_Quater'"));
 	if (QuaterDataRef.Object)
 	{
-		CharacterControlManager.Add(ECharacterControlType::Shoulder, QuaterDataRef.Object);
+		CharacterControlManager.Add(ECharacterControlType::Quater, QuaterDataRef.Object);
 	}
 
+}
+
+void AGSCharacterBase::SetCharacterControlData(const UGSCharacterControlData* CharacterControlData)
+{
+	// Pawn
+	bUseControllerRotationYaw = CharacterControlData->bUseControllerRotationYaw;
+
+	// CharacterMovement
+	GetCharacterMovement()->bOrientRotationToMovement = CharacterControlData->bOrientRotationToMovement;
+	GetCharacterMovement()->bUseControllerDesiredRotation = CharacterControlData->bUseControllerDesiredRotation;
+	GetCharacterMovement()->RotationRate = CharacterControlData->RotationRate;
 }

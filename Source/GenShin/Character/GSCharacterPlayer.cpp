@@ -34,13 +34,13 @@ AGSCharacterPlayer::AGSCharacterPlayer()
 		JumpAction = InputActionJumpRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionShoulderLookRef(TEXT("/Script/EnhancedInput.InputAction'/Game/GenShin/Input/Actions/IA_SholderLook.IA_SholderLook'"));
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionShoulderLookRef(TEXT("/Script/EnhancedInput.InputAction'/Game/GenShin/Input/Actions/IA_ShoulderLook.IA_ShoulderLook'"));
 	if (InputActionShoulderLookRef.Object)
 	{
 		SoulderLookAction = InputActionShoulderLookRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionShoulderMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/GenShin/Input/Actions/IA_SholderMove.IA_SholderMove'"));
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionShoulderMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/GenShin/Input/Actions/IA_ShoulderMove.IA_ShoulderMove'"));
 	if (InputActionShoulderMoveRef.Object)
 	{
 		SoulderMoveAction = InputActionShoulderMoveRef.Object;
@@ -95,7 +95,7 @@ void AGSCharacterPlayer::SetCharacterControl(ECharacterControlType NewCharacterC
 	UGSCharacterControlData* NewCharacterControl = CharacterControlManager[NewCharacterControlType];
 	check(NewCharacterControl);
 	// 가져온 뷰 데이터 오브젝트로 설정
-	//SetCharacterControlData(NewCharacterControl);
+	SetCharacterControlData(NewCharacterControl);
 
 	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
@@ -141,16 +141,36 @@ void AGSCharacterPlayer::SoulderMove(const FInputActionValue& Value)
 	const FRotator Rotation = Controller->GetControlRotation();
 	const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+	// 인풋액션 Modifiers 옵션에 "Swizzle Input Axis Values" 추가하면, XY 바꿔쓰지 않아도 됨.
+	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 
 	FVector2D MovementVector = Value.Get<FVector2D>();
-	AddMovementInput(ForwardDirection, MovementVector.Y);
-	AddMovementInput(RightDirection, MovementVector.X);
+	AddMovementInput(ForwardDirection, MovementVector.X);
+	AddMovementInput(RightDirection, MovementVector.Y);
 }
 
 void AGSCharacterPlayer::QuaterMove(const FInputActionValue& Value)
 {
+	// FVector2D: 키보드 XY값
+	FVector2D MovementVector = Value.Get<FVector2D>();
 
+	float InputSizeSquared = MovementVector.SquaredLength();
+	float MovementVectorSize = 1.0f;
+	float MovementVectorSizeSquared = MovementVector.SquaredLength();
+	if (MovementVectorSizeSquared > 1.0f)
+	{
+		MovementVector.Normalize();
+		MovementVectorSizeSquared = 1.0f;
+	}
+	else
+	{
+		MovementVectorSize = FMath::Sqrt(MovementVectorSizeSquared);
+	}
+
+	// 인풋액션 Modifiers 옵션에 "Swizzle Input Axis Values" 추가하면, XY 바꿔쓰지 않아도 됨.
+	FVector MoveDirection = FVector(MovementVector.Y, MovementVector.X, 0.0f);
+	GetController()->SetControlRotation(FRotationMatrix::MakeFromX(MoveDirection).Rotator());
+	AddMovementInput(MoveDirection, MovementVectorSize);
 }
 
