@@ -21,10 +21,30 @@ class GENSHIN_API AGSCharacterBase : public ACharacter
 public:
 	AGSCharacterBase();
 
-	// character control section
+	// Character Control sSection
 protected:
 	virtual void SetCharacterControlData(const class UGSCharacterControlData* CharacterControlData);
 
 	UPROPERTY(EditAnywhere, Category = CharacterControl, Meta = (AllowPrivateAccess = "true"))
 	TMap<ECharacterControlType, TObjectPtr<class UGSCharacterControlData>> CharacterControlManager;
+
+protected:
+	// Combo Attack Section
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TObjectPtr<class UAnimMontage> ComboAttackMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TObjectPtr<class UGSComboActionData> ComboAttackData;
+
+	int32 CurrentCombo = 0;
+
+	bool HasNextCombo = false;
+
+	FTimerHandle ComboTimerHandle;
+
+	void ProcessComboActionCommand();
+	void AttackMontageBegin();
+	void AttackMontageEnd(UAnimMontage* TargetMontage, bool IsProperlyEnded);
+	void SetComboTimer();
+	void ComboCheck();
 };

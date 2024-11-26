@@ -57,9 +57,14 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> QuaterMoveAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> AttackAction;
 	
 	void SoulderLook(const FInputActionValue& Value);
 	void SoulderMove(const FInputActionValue& Value);
 	void QuaterMove(const FInputActionValue& Value);
+
+	void Attack();
 
 };
