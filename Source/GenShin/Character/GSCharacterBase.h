@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interface/GSAnimationAttackInterface.h"
 #include "GSCharacterBase.generated.h"
 
 UENUM()
@@ -14,7 +15,7 @@ enum class ECharacterControlType : uint8
 };
 
 UCLASS()
-class GENSHIN_API AGSCharacterBase : public ACharacter
+class GENSHIN_API AGSCharacterBase : public ACharacter, public IGSAnimationAttackInterface
 {
 	GENERATED_BODY()
 
@@ -47,4 +48,14 @@ protected:
 	void AttackMontageEnd(UAnimMontage* TargetMontage, bool IsProperlyEnded);
 	void SetComboTimer();
 	void ComboCheck();
+
+	// Attack Hit Section
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TObjectPtr<class UAnimMontage> DeadMontage;
+
+	virtual void AttackHitCheck() override;
+	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	virtual void SetDead();
+	void PlayDeadAnimation();
 };
