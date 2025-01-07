@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interface/GSAnimationAttackInterface.h"
+#include "Interface/GSCharacterWidgetInterface.h"
 #include "GSCharacterBase.generated.h"
 
 UENUM()
@@ -15,22 +16,24 @@ enum class ECharacterControlType : uint8
 };
 
 UCLASS()
-class GENSHIN_API AGSCharacterBase : public ACharacter, public IGSAnimationAttackInterface
+class GENSHIN_API AGSCharacterBase : public ACharacter, public IGSAnimationAttackInterface, public IGSCharacterWidgetInterface
 {
 	GENERATED_BODY()
 
 public:
 	AGSCharacterBase();
 
-	// Character Control sSection
+	virtual void PostInitializeComponents() override;
+
+	// Character Control Section
 protected:
 	virtual void SetCharacterControlData(const class UGSCharacterControlData* CharacterControlData);
 
 	UPROPERTY(EditAnywhere, Category = CharacterControl, Meta = (AllowPrivateAccess = "true"))
 	TMap<ECharacterControlType, TObjectPtr<class UGSCharacterControlData>> CharacterControlManager;
 
-protected:
 	// Combo Attack Section
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 	TObjectPtr<class UAnimMontage> ComboAttackMontage;
 
@@ -38,9 +41,7 @@ protected:
 	TObjectPtr<class UGSComboActionData> ComboAttackData;
 
 	int32 CurrentCombo = 0;
-
 	bool HasNextCombo = false;
-
 	FTimerHandle ComboTimerHandle;
 
 	void ProcessComboActionCommand();
@@ -51,11 +52,28 @@ protected:
 
 	// Attack Hit Section
 protected:
+	virtual void AttackHitCheck() override;
+	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+	// Dead Section
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 	TObjectPtr<class UAnimMontage> DeadMontage;
 
-	virtual void AttackHitCheck() override;
-	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void SetDead();
 	void PlayDeadAnimation();
+
+	float DeadEventDelayTime = 5.0f;
+
+	// Stat Section
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UGSCharacterStatComponent> Stat;
+
+	// UI Widget Section
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UWidgetComponent> HpBar;
+
+	virtual void SetupCharacterWidget(class UGSUserWidget* InUserWidget) override;
+
 };

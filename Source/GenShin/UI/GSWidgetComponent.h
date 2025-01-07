@@ -4,14 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Components/WidgetComponent.h"
-#include "GSCharacterWidgetComponent.generated.h"
+#include "GSWidgetComponent.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GENSHIN_API UGSCharacterWidgetComponent : public UWidgetComponent
+class GENSHIN_API UGSWidgetComponent : public UWidgetComponent
 {
 	GENERATED_BODY()
+
+protected:
+	virtual void InitWidget() override;
 	
 };

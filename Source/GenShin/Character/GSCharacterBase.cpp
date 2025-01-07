@@ -8,6 +8,10 @@
 #include "Character/GSComboActionData.h"
 #include "Physics/GSCollision.h"
 #include "Engine/DamageEvents.h"
+#include "CharacterStat/GSCharacterStatComponent.h"
+#include "UI/GSWidgetComponent.h"
+#include "UI/GSHpBarWidget.h"
+#include "CharacterStat/GSCharacterStatComponent.h"
 
 // Sets default values
 AGSCharacterBase::AGSCharacterBase()
@@ -80,6 +84,28 @@ AGSCharacterBase::AGSCharacterBase()
 		DeadMontage = DeadMontageRef.Object;
 	}
 
+	// Stat Component
+	Stat = CreateDefaultSubobject<UGSCharacterStatComponent>(TEXT("Stat"));
+
+	// Widget Component
+	HpBar = CreateDefaultSubobject<UGSWidgetComponent>(TEXT("HpBar"));
+	HpBar->SetupAttachment(GetMesh());
+	HpBar->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f));
+	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Game/GenShin/UI/WBP_HpBar.WBP_HpBar_C"));
+	if (HpBarWidgetRef.Class)
+	{
+		HpBar->SetWidgetClass(HpBarWidgetRef.Class);
+		HpBar->SetWidgetSpace(EWidgetSpace::Screen);
+		HpBar->SetDrawSize(FVector2D(150.0f, 15.0f));
+		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+}
+
+void AGSCharacterBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	Stat->OnHpZero.AddUObject(this, &AGSCharacterBase::SetDead);
 }
 
 void AGSCharacterBase::SetCharacterControlData(const UGSCharacterControlData* CharacterControlData)
@@ -214,6 +240,7 @@ void AGSCharacterBase::SetDead()
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	PlayDeadAnimation();
 	SetActorEnableCollision(false);
+	HpBar->SetHiddenInGame(true);
 }
 
 void AGSCharacterBase::PlayDeadAnimation()
@@ -221,4 +248,17 @@ void AGSCharacterBase::PlayDeadAnimation()
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	AnimInstance->StopAllMontages(0.0f);
 	AnimInstance->Montage_Play(DeadMontage, 1.0f);
+}
+
+void AGSCharacterBase::SetupCharacterWidget(class UGSUserWidget* InUserWidget)
+{
+	// HpbarWidget Section
+	UGSHpBarWidget* GSHpBarWidget = Cast<UGSHpBarWidget>(InUserWidget);
+	if (GSHpBarWidget)
+	{
+		GSHpBarWidget->SetMaxHp(Stat->GetMaxHp());
+		GSHpBarWidget->UpdateHpBar(Stat->GetCurrentHp());
+		Stat->OnHpChanged.AddUObject(GSHpBarWidget, &UGSHpBarWidget::UpdateHpBar);
+	}
+
 }
