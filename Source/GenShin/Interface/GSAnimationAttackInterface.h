@@ -22,5 +22,5 @@ class GENSHIN_API IGSAnimationAttackInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void AttackHitCheck() abstract;
+	virtual void AttackHitCheck() = 0;
 };
