@@ -9,6 +9,8 @@
 #include "Interface/GSCharacterItemInterface.h"
 #include "GSCharacterBase.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogGSCharacter, Log, All);
+
 UENUM()
 enum class ECharacterControlType : uint8
 {

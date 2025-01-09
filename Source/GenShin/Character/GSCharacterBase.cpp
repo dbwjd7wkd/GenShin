@@ -14,6 +14,8 @@
 #include "CharacterStat/GSCharacterStatComponent.h"
 #include "Item/GSWeaponItemData.h"
 
+DEFINE_LOG_CATEGORY(LogGSCharacter);
+
 // Sets default values
 AGSCharacterBase::AGSCharacterBase()
 {
@@ -281,7 +283,7 @@ void AGSCharacterBase::TakeItem(UGSItemData* InItemData)
 
 void AGSCharacterBase::DoNothing(UGSItemData* InItemData)
 {
-	UE_LOG(LogTemp, Warning, TEXT("DoNothing"));
+	UE_LOG(LogGSCharacter, Warning, TEXT("DoNothing"));
 }
 
 void AGSCharacterBase::EquipWeapon(UGSItemData* InItemData)
@@ -299,10 +301,10 @@ void AGSCharacterBase::EquipWeapon(UGSItemData* InItemData)
 
 void AGSCharacterBase::DrinkPotion(UGSItemData* InItemData)
 {
-	UE_LOG(LogTemp, Warning, TEXT("DrinkPotion"));
+	UE_LOG(LogGSCharacter, Warning, TEXT("DrinkPotion"));
 }
 
 void AGSCharacterBase::ReadScroll(UGSItemData* InItemData)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ReadScroll"));
+	UE_LOG(LogGSCharacter, Warning, TEXT("ReadScroll"));
 }
