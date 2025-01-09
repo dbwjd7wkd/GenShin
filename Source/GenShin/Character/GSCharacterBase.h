@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Interface/GSAnimationAttackInterface.h"
 #include "Interface/GSCharacterWidgetInterface.h"
+#include "Interface/GSCharacterItemInterface.h"
 #include "GSCharacterBase.generated.h"
 
 UENUM()
@@ -15,8 +16,18 @@ enum class ECharacterControlType : uint8
 	Quater
 };
 
+DECLARE_DELEGATE_OneParam(FOnTakeItemDelegate, class UGSItemData* /*InItemData*/);
+USTRUCT(BlueprintType)
+struct FTakeItemDelegateWrapper
+{
+	GENERATED_BODY()
+	FTakeItemDelegateWrapper() {}
+	FTakeItemDelegateWrapper(const FOnTakeItemDelegate& InItemDelegate) : ItemDelegate(InItemDelegate) {}
+	FOnTakeItemDelegate ItemDelegate;
+};
+
 UCLASS()
-class GENSHIN_API AGSCharacterBase : public ACharacter, public IGSAnimationAttackInterface, public IGSCharacterWidgetInterface
+class GENSHIN_API AGSCharacterBase : public ACharacter, public IGSAnimationAttackInterface, public IGSCharacterWidgetInterface, public IGSCharacterItemInterface
 {
 	GENERATED_BODY()
 
@@ -75,5 +86,19 @@ protected:
 	TObjectPtr<class UWidgetComponent> HpBar;
 
 	virtual void SetupCharacterWidget(class UGSUserWidget* InUserWidget) override;
+
+	// Item Section
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class USkeletalMeshComponent> Weapon;
+
+	UPROPERTY();
+	TArray<FTakeItemDelegateWrapper> TakeItemActions;
+
+	virtual void TakeItem(class UGSItemData* InItemData) override;
+	void DoNothing(class UGSItemData* InItemData);
+	void EquipWeapon(class UGSItemData* InItemData);
+	void DrinkPotion(class UGSItemData* InItemData);
+	void ReadScroll(class UGSItemData* InItemData);
 
 };

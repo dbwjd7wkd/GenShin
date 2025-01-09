@@ -6,6 +6,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Physics/GSCollision.h"
+#include "Interface/GSCharacterItemInterface.h"
+#include "Item/GSItemData.h"
 
 // Sets default values
 AGSItemBox::AGSItemBox()
@@ -36,10 +38,19 @@ AGSItemBox::AGSItemBox()
         Effect->SetTemplate(EffectRef.Object);
 		Effect->bAutoActivate = false;
     }
+
+    Item = CreateDefaultSubobject<UGSItemData>(TEXT("ItemData"));
+
 }
 
 void AGSItemBox::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult)
 {
+    IGSCharacterItemInterface* OverlappingCharacter = Cast<IGSCharacterItemInterface>(OtherActor);
+    if (OverlappingCharacter)
+    {
+        OverlappingCharacter->TakeItem(Item);
+    }
+
     SetActorEnableCollision(false);
     Mesh->SetHiddenInGame(true);
     Effect->Activate(true);

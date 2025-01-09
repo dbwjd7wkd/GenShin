@@ -12,6 +12,7 @@
 #include "UI/GSWidgetComponent.h"
 #include "UI/GSHpBarWidget.h"
 #include "CharacterStat/GSCharacterStatComponent.h"
+#include "Item/GSWeaponItemData.h"
 
 // Sets default values
 AGSCharacterBase::AGSCharacterBase()
@@ -99,6 +100,16 @@ AGSCharacterBase::AGSCharacterBase()
 		HpBar->SetDrawSize(FVector2D(150.0f, 15.0f));
 		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+
+	// Item Actions
+	TakeItemActions.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &AGSCharacterBase::DoNothing)));
+	TakeItemActions.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &AGSCharacterBase::EquipWeapon)));
+	TakeItemActions.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &AGSCharacterBase::DrinkPotion)));
+	TakeItemActions.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &AGSCharacterBase::ReadScroll)));
+
+	// Weapon Component
+	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
+	Weapon->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
 }
 
 void AGSCharacterBase::PostInitializeComponents()
@@ -261,4 +272,37 @@ void AGSCharacterBase::SetupCharacterWidget(class UGSUserWidget* InUserWidget)
 		Stat->OnHpChanged.AddUObject(GSHpBarWidget, &UGSHpBarWidget::UpdateHpBar);
 	}
 
+}
+
+void AGSCharacterBase::TakeItem(UGSItemData* InItemData)
+{
+	TakeItemActions[(uint8)InItemData->Type].ItemDelegate.ExecuteIfBound(InItemData);
+}
+
+void AGSCharacterBase::DoNothing(UGSItemData* InItemData)
+{
+	UE_LOG(LogTemp, Warning, TEXT("DoNothing"));
+}
+
+void AGSCharacterBase::EquipWeapon(UGSItemData* InItemData)
+{
+	UGSWeaponItemData* WeaponItemData = Cast<UGSWeaponItemData>(InItemData);
+	if (WeaponItemData)
+	{
+		if (WeaponItemData->WeaponMesh.IsPending())
+		{
+			WeaponItemData->WeaponMesh.LoadSynchronous();
+		}
+		Weapon->SetSkeletalMesh(WeaponItemData->WeaponMesh.Get());
+	}
+}
+
+void AGSCharacterBase::DrinkPotion(UGSItemData* InItemData)
+{
+	UE_LOG(LogTemp, Warning, TEXT("DrinkPotion"));
+}
+
+void AGSCharacterBase::ReadScroll(UGSItemData* InItemData)
+{
+	UE_LOG(LogTemp, Warning, TEXT("ReadScroll"));
 }
