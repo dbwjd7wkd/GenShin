@@ -13,6 +13,12 @@ UCLASS()
 class GENSHIN_API UGSWeaponItemData : public UGSItemData
 {
 	GENERATED_BODY()
+
+public:
+	FPrimaryAssetId GetPrimaryAssetId() const override
+	{
+		return FPrimaryAssetId("GSItemData", GetFName());
+	}
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Mesh)

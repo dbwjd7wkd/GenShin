@@ -15,6 +15,12 @@ public:
 	// Sets default values for this actor's properties
 	AGSItemBox();
 
+	FORCEINLINE class UBoxComponent* GetTrigger() { return TriggerBox; }
+
+protected:
+	// 액터의 세팅이 마무리되는 시점에 호출되는 함수.
+	virtual void PostInitializeComponents() override;
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Box)
 	TObjectPtr<class UBoxComponent> TriggerBox;

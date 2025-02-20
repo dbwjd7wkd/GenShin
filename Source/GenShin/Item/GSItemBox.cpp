@@ -7,6 +7,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Physics/GSCollision.h"
 #include "Interface/GSCharacterItemInterface.h"
+#include "Engine/AssetManager.h"
 #include "Item/GSItemData.h"
 
 // Sets default values
@@ -41,6 +42,27 @@ AGSItemBox::AGSItemBox()
 
     Item = CreateDefaultSubobject<UGSItemData>(TEXT("ItemData"));
 
+}
+
+void AGSItemBox::PostInitializeComponents()
+{
+    // "GSItemData" 태그를 가진 에셋 중 아이템 하나 로딩하기
+    Super::PostInitializeComponents();
+
+    UAssetManager& Manager = UAssetManager::Get();
+
+    TArray<FPrimaryAssetId> Assets;
+    Manager.GetPrimaryAssetIdList(TEXT("GSItemData"), Assets);
+    
+    ensure(0 < Assets.Num());
+    int32 RandomIndex = FMath::RandRange(0, Assets.Num() - 1);
+    FSoftObjectPtr AssetPtr(Manager.GetPrimaryAssetPath(Assets[RandomIndex]));
+    if (AssetPtr.IsPending())
+    {
+        AssetPtr.LoadSynchronous();
+    }
+    Item = Cast<UGSItemData>(AssetPtr.Get());
+    ensure(Item);
 }
 
 void AGSItemBox::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult)

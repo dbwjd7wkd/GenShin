@@ -21,7 +21,11 @@ class GENSHIN_API UGSItemData : public UPrimaryDataAsset
 	GENERATED_BODY()
 
 public:
-	UGSItemData() : Type(EItemType::None) {}
+	FPrimaryAssetId GetPrimaryAssetId() const override
+	{
+		// 두 가지 값을 이용해 GSItemData 태그를 가진 식별자 ID 값을 만들어 낼 수 있음. 
+		return FPrimaryAssetId("GSItemData", GetFName());
+	}
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Type)
