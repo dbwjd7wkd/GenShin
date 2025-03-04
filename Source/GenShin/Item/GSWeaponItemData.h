@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Item/GSItemData.h"
+#include "GameData/GSCharacterStat.h"
 #include "GSWeaponItemData.generated.h"
 
 /**
@@ -24,4 +25,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Mesh)
 	TSoftObjectPtr<USkeletalMesh> WeaponMesh;
 
+	UPROPERTY(EditAnywhere, Category = Stat)
+	FGSCharacterStat ModifierStat;
 };

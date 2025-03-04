@@ -84,6 +84,7 @@ protected:
 	TObjectPtr<class UGSCharacterStatComponent> Stat;
 
 	// UI Widget Section
+protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UWidgetComponent> HpBar;
 
@@ -103,4 +104,8 @@ protected:
 	void DrinkPotion(class UGSItemData* InItemData);
 	void ReadScroll(class UGSItemData* InItemData);
 
+	// Stat Section
+public:
+	int32 GetLevel();
+	void SetLevel(int32 InNewLevel);
 };

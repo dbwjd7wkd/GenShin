@@ -18,11 +18,12 @@ UGSGameSingleton::UGSGameSingleton()
 		Algo::Transform(ValueArray, CharacterStatTable,
 			[](uint8* Value)
 			{
-				return reinterpret_cast<FGSCharacterStat*>(Value);
+				return *reinterpret_cast<FGSCharacterStat*>(Value);
 			}
 		);
 	}
 
+	CharacterMaxLevel = CharacterStatTable.Num();
 }
 
 UGSGameSingleton& UGSGameSingleton::Get()

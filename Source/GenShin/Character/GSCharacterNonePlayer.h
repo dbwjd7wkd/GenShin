@@ -4,12 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Character/GSCharacterBase.h"
+#include "Engine/StreamableManager.h"
 #include "GSCharacterNonePlayer.generated.h"
 
 /**
  * 
  */
-UCLASS()
+UCLASS(config = ArenaBattle)
 class GENSHIN_API AGSCharacterNonePlayer : public AGSCharacterBase
 {
 	GENERATED_BODY()
@@ -18,9 +19,15 @@ public:
 	AGSCharacterNonePlayer();
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Dead)
-	float DeadEventDelayTime = 5.0f;
+	virtual void PostInitializeComponents() override;
 
-	virtual void SetDead() override;
+protected:
+	void SetDead() override;
+	void NPCMeshLoadCompleted();
+
+	UPROPERTY(config)
+	TArray<FSoftObjectPath> NPCMeshes;
+
+	TSharedPtr<FStreamableHandle> NPCMeshHandle;
 
 };

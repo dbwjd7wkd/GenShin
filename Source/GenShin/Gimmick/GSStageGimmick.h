@@ -32,6 +32,12 @@ class GENSHIN_API AGSStageGimmick : public AActor
 	
 public:	
 	AGSStageGimmick();
+
+public:
+	FORCEINLINE int32 GetStageNum() const { return CurrentStageNum; }
+	FORCEINLINE void SetStageNum(int32 NewStageNum) { CurrentStageNum = NewStageNum; }
+
+protected:
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 	// Stage Section
@@ -102,5 +108,10 @@ protected:
 	void OnRewardTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	void SpawnRewardBoxes();
-	void DestroyRewardBoxes();
+
+	// Stage Stat
+protected:
+	UPROPERTY(VisibleInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	int32 CurrentStageNum;
+
 };

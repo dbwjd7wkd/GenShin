@@ -69,6 +69,9 @@ AGSStageGimmick::AGSStageGimmick()
 		FVector BoxLocation = Stage->GetSocketLocation(GateSocket) / 2;
 		RewardBoxLocations.Add(GateSocket, BoxLocation);
 	}
+
+	// Stage Stat
+	CurrentStageNum = 0;
 }
 
 void AGSStageGimmick::OnConstruction(const FTransform& Transform)
@@ -110,8 +113,14 @@ void AGSStageGimmick::OnGateTriggerBeginOverlap(UPrimitiveComponent* OverlappedC
 	// 만약 해당 위치에 아무것도 없다면, 똑같은 기믹 액터를 스폰시킴.
 	if (!bResult)
 	{
-		GetWorld()->SpawnActor<AGSStageGimmick>(NewLocation, FRotator::ZeroRotator);
-		SetState(EStageState::READY);
+		FTransform NewTransform(NewLocation);
+		// Gimmick 액터 지연생성 (NPC, Gimmick, 상자에 지연생성 사용)
+		AGSStageGimmick* NewGimmick = GetWorld()->SpawnActorDeferred<AGSStageGimmick>(AGSStageGimmick::StaticClass(), NewTransform);
+		if (NewGimmick)
+		{
+			NewGimmick->SetStageNum(CurrentStageNum + 1);
+			NewGimmick->FinishSpawning(NewTransform);
+		}
 	}
 }
 
@@ -151,7 +160,6 @@ void AGSStageGimmick::SetReady()
 	}
 
 	OpenAllGates();
-	DestroyRewardBoxes();
 }
 
 void AGSStageGimmick::SetFight()
@@ -165,7 +173,6 @@ void AGSStageGimmick::SetFight()
 	CloseAllGates();
 
 	GetWorld()->GetTimerManager().SetTimer(OpponentTimerHandle, this, &AGSStageGimmick::OnOpponentSpawn, OpponentSpawnTime, false);
-	DestroyRewardBoxes();
 }
 
 void AGSStageGimmick::SetChooseReward()
@@ -189,7 +196,6 @@ void AGSStageGimmick::SetChooseNext()
 	}
 
 	OpenAllGates();
-	DestroyRewardBoxes();
 }
 
 void AGSStageGimmick::OnOpponentDestroyed(AActor* DestroyedActor)
@@ -199,12 +205,14 @@ void AGSStageGimmick::OnOpponentDestroyed(AActor* DestroyedActor)
 
 void AGSStageGimmick::OnOpponentSpawn()
 {
-	const FVector SpawnLocation = GetActorLocation() + FVector::UpVector * 88.0f;
-	AActor* OpponentActor = GetWorld()->SpawnActor(OpponentClass, &SpawnLocation, &FRotator::ZeroRotator);
-	AGSCharacterNonePlayer* GSOpponentCharacter = Cast<AGSCharacterNonePlayer>(OpponentActor);
+	const FTransform SpawnTransform(GetActorLocation() + FVector::UpVector * 88.0f);
+	AGSCharacterNonePlayer* GSOpponentCharacter = GetWorld()->SpawnActorDeferred<AGSCharacterNonePlayer>(OpponentClass, SpawnTransform);
 	if (GSOpponentCharacter)
 	{
 		GSOpponentCharacter->OnDestroyed.AddDynamic(this, &AGSStageGimmick::OnOpponentDestroyed);
+		GSOpponentCharacter->SetLevel(CurrentStageNum);
+		// 지연생성 시 FinishSpawing함수를 실행해줘야 BeginPlay()가 실행되기 때문에, 스탯컴포넌트의 BeginPlay가 실행되면서 제대로 된 레벨값을 참조해서 Hp가 채워지게 됨.
+		GSOpponentCharacter->FinishSpawning(SpawnTransform);
 	}
 }
 
@@ -230,9 +238,10 @@ void AGSStageGimmick::SpawnRewardBoxes()
 {
 	for (const auto& RewardBoxLocation : RewardBoxLocations)
 	{
-		FVector WorldSpawnLocation = GetActorLocation() + RewardBoxLocation.Value + FVector(0.0f, 0.0f, 30.0f);
-		AActor* ItemActor = GetWorld()->SpawnActor(RewardBoxClass, &WorldSpawnLocation, &FRotator::ZeroRotator);
-		AGSItemBox* RewardBoxActor = Cast<AGSItemBox>(ItemActor);
+		FTransform SpawnTransform(GetActorLocation() + RewardBoxLocation.Value + FVector(0.0f, 0.0f, 30.0f));
+		// 상자 액터 지연생성
+		// PostInitailize()도 지연생성의 FinishSpawing() 이후에 진행되기 때문에 BeginPlay()와 동일한 효과.
+		AGSItemBox* RewardBoxActor = GetWorld()->SpawnActorDeferred<AGSItemBox>(RewardBoxClass, SpawnTransform);
 		if (RewardBoxActor)
 		{
 			RewardBoxActor->Tags.Add(RewardBoxLocation.Key);
@@ -240,15 +249,12 @@ void AGSStageGimmick::SpawnRewardBoxes()
 			RewardBoxes.Add(RewardBoxActor);
 		}
 	}
-}
 
-void AGSStageGimmick::DestroyRewardBoxes()
-{
-	for (auto RewardBox : RewardBoxes)
+	for (const auto& RewardBox : RewardBoxes)
 	{
 		if (RewardBox.IsValid())
 		{
-			RewardBox->Destroy();
+			RewardBox.Get()->FinishSpawning(RewardBox.Get()->GetActorTransform());
 		}
 	}
 }

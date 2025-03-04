@@ -162,8 +162,9 @@ void AGSCharacterBase::AttackMontageBegin()
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 
 	// Animation Setting
+	const float AttackSpeedRate = Stat->GetTotalStat().AttackSpeed;
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	AnimInstance->Montage_Play(ComboAttackMontage);
+	AnimInstance->Montage_Play(ComboAttackMontage, AttackSpeedRate);
 
 	FOnMontageEnded OnMontageEnded;
 	OnMontageEnded.BindUObject(this, &AGSCharacterBase::AttackMontageEnd);
@@ -217,10 +218,9 @@ void AGSCharacterBase::AttackHitCheck()
 	FHitResult OutHitResult;
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this); // 식별자태그, 복잡한 충돌체도 감지할 건지, 무시할 액터
 
-	const float AttackRange = 40.0f;
+	const float AttackRange = Stat->GetTotalStat().AttackRange;
 	const float AttackRadius = 50.0f;
-	const float AttackDamage = 30.0f;
-
+	const float AttackDamage = Stat->GetTotalStat().Attack;
 	const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
 	const FVector End = Start + GetActorForwardVector() * AttackRange;
 	bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity, CCHANNEL_GSACTION, FCollisionShape::MakeSphere(AttackRadius), Params);
@@ -269,7 +269,7 @@ void AGSCharacterBase::SetupCharacterWidget(class UGSUserWidget* InUserWidget)
 	UGSHpBarWidget* GSHpBarWidget = Cast<UGSHpBarWidget>(InUserWidget);
 	if (GSHpBarWidget)
 	{
-		GSHpBarWidget->SetMaxHp(Stat->GetMaxHp());
+		GSHpBarWidget->SetMaxHp(Stat->GetTotalStat().MaxHp);
 		GSHpBarWidget->UpdateHpBar(Stat->GetCurrentHp());
 		Stat->OnHpChanged.AddUObject(GSHpBarWidget, &UGSHpBarWidget::UpdateHpBar);
 	}
@@ -307,4 +307,14 @@ void AGSCharacterBase::DrinkPotion(UGSItemData* InItemData)
 void AGSCharacterBase::ReadScroll(UGSItemData* InItemData)
 {
 	UE_LOG(LogGSCharacter, Warning, TEXT("ReadScroll"));
+}
+
+int32 AGSCharacterBase::GetLevel()
+{
+	return Stat->GetCurrentLevel();
+}
+
+void AGSCharacterBase::SetLevel(int32 InNewLevel)
+{
+	Stat->SetLevelStat(InNewLevel);
 }

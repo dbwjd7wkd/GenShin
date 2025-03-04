@@ -23,7 +23,7 @@ public:
 	static UGSGameSingleton& Get();
 
 public:
-	FORCEINLINE FGSCharacterStat GetGSCharacterStat(int32 InLevel) { return CharacterStatTable.Num() > InLevel ? CharacterStatTable[InLevel - 1] : FGSCharacterStat(); }
+	FORCEINLINE FGSCharacterStat GetCharacterStat(int32 InLevel) { return CharacterStatTable.IsValidIndex(InLevel - 1) ? CharacterStatTable[InLevel - 1] : FGSCharacterStat(); }
 
 	int32 CharacterMaxLevel;
 

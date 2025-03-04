@@ -72,7 +72,6 @@ void AGSItemBox::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor
     {
         OverlappingCharacter->TakeItem(Item);
     }
-
     SetActorEnableCollision(false);
     Mesh->SetHiddenInGame(true);
     Effect->Activate(true);
