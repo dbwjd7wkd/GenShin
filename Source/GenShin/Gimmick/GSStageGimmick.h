@@ -83,7 +83,7 @@ protected:
 	// Fight Section
 protected:
 	UPROPERTY(EditAnywhere, Category = Fight, Meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<class AGSCharacterNonePlayer> OpponentClass;
+	TSubclassOf<class AGSCharacterNonPlayer> OpponentClass;
 
 	UPROPERTY(EditAnywhere, Category = Fight, Meta = (AllowPrivateAccess = "true"))
 	float OpponentSpawnTime;

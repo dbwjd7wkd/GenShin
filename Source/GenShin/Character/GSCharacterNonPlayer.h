@@ -5,18 +5,18 @@
 #include "CoreMinimal.h"
 #include "Character/GSCharacterBase.h"
 #include "Engine/StreamableManager.h"
-#include "GSCharacterNonePlayer.generated.h"
+#include "GSCharacterNonPlayer.generated.h"
 
 /**
  * 
  */
 UCLASS(config = ArenaBattle)
-class GENSHIN_API AGSCharacterNonePlayer : public AGSCharacterBase
+class GENSHIN_API AGSCharacterNonPlayer : public AGSCharacterBase
 {
 	GENERATED_BODY()
 	
 public:
-	AGSCharacterNonePlayer();
+	AGSCharacterNonPlayer();
 
 protected:
 	virtual void PostInitializeComponents() override;

@@ -5,7 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "Physics/GSCollision.h"
-#include "Character/GSCharacterNonePlayer.h"
+#include "Character/GSCharacterNonPlayer.h"
 #include "Item/GSItemBox.h"
 
 AGSStageGimmick::AGSStageGimmick()
@@ -60,7 +60,7 @@ AGSStageGimmick::AGSStageGimmick()
 
 	// Fight Section
 	OpponentSpawnTime = 2.0f;
-	OpponentClass = AGSCharacterNonePlayer::StaticClass();
+	OpponentClass = AGSCharacterNonPlayer::StaticClass();
 
 	// Reward Section
 	RewardBoxClass = AGSItemBox::StaticClass();
@@ -206,7 +206,7 @@ void AGSStageGimmick::OnOpponentDestroyed(AActor* DestroyedActor)
 void AGSStageGimmick::OnOpponentSpawn()
 {
 	const FTransform SpawnTransform(GetActorLocation() + FVector::UpVector * 88.0f);
-	AGSCharacterNonePlayer* GSOpponentCharacter = GetWorld()->SpawnActorDeferred<AGSCharacterNonePlayer>(OpponentClass, SpawnTransform);
+	AGSCharacterNonPlayer* GSOpponentCharacter = GetWorld()->SpawnActorDeferred<AGSCharacterNonPlayer>(OpponentClass, SpawnTransform);
 	if (GSOpponentCharacter)
 	{
 		GSOpponentCharacter->OnDestroyed.AddDynamic(this, &AGSStageGimmick::OnOpponentDestroyed);
