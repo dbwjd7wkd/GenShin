@@ -3,10 +3,14 @@
 
 #include "Character/GSCharacterNonPlayer.h"
 #include "Engine/AssetManager.h"
+#include "AI/GSAIController.h"
 
 AGSCharacterNonPlayer::AGSCharacterNonPlayer()
 {
 	GetMesh()->SetHiddenInGame(true);
+
+	AIControllerClass = AGSAIController::StaticClass();
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
 void AGSCharacterNonPlayer::PostInitializeComponents()
