@@ -60,6 +60,7 @@ protected:
 	void ProcessComboActionCommand();
 	void AttackMontageBegin();
 	void AttackMontageEnd(UAnimMontage* TargetMontage, bool IsProperlyEnded);
+	virtual void NotifyComboActionEnd();
 	void SetComboTimer();
 	void ComboCheck();
 

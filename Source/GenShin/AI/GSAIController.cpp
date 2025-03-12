@@ -5,6 +5,7 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "AI/GSAI.h"
 
 AGSAIController::AGSAIController()
 {
@@ -27,6 +28,8 @@ void AGSAIController::RunAI()
 	UBlackboardComponent* BlackboardPtr = Blackboard.Get();
 	if (UseBlackboard(BBAsset, BlackboardPtr))
 	{
+		Blackboard->SetValueAsVector(BBKEY_HOMEPOS, GetPawn()->GetActorLocation());
+
 		bool RunResult = RunBehaviorTree(BTAsset);
 		ensure(RunResult);
 	}

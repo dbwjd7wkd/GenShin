@@ -179,6 +179,12 @@ void AGSCharacterBase::AttackMontageEnd(UAnimMontage* TargetMontage, bool IsProp
 	check(CurrentCombo != 0);
 	CurrentCombo = 0;
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+
+	NotifyComboActionEnd();
+}
+
+void AGSCharacterBase::NotifyComboActionEnd()
+{
 }
 
 void AGSCharacterBase::SetComboTimer()

@@ -7,6 +7,7 @@
 UGSCharacterStatComponent::UGSCharacterStatComponent()
 {
 	CurrentLevel = 1;
+	AttackRadius = 50.0f;
 }
 
 void UGSCharacterStatComponent::BeginPlay()
