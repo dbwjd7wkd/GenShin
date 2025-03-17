@@ -5,13 +5,14 @@
 #include "CoreMinimal.h"
 #include "Character/GSCharacterBase.h"
 #include "InputActionValue.h" // Build.cs에 "EnhancedInput" 모듈을 추가해줘야 쓸 수 있음.
+#include "Interface/GSCharacterHUDInterface.h"
 #include "GSCharacterPlayer.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GENSHIN_API AGSCharacterPlayer : public AGSCharacterBase
+class GENSHIN_API AGSCharacterPlayer : public AGSCharacterBase, public IGSCharacterHUDInterface
 {
 	GENERATED_BODY()
 	
@@ -66,5 +67,9 @@ protected:
 	void QuaterMove(const FInputActionValue& Value);
 
 	void Attack();
+
+	// UI Section
+protected:
+	virtual void SetupHUDWidget(class UGSHUDWidget* InHUDWidget) override;
 
 };

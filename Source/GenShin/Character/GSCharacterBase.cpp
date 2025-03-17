@@ -222,7 +222,7 @@ void AGSCharacterBase::ComboCheck()
 void AGSCharacterBase::AttackHitCheck()
 {
 	FHitResult OutHitResult;
-	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this); // 식별자태그, 복잡한 충돌체도 감지할 건지, 무시할 액터
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this); // 식별자 태그, 복잡한 충돌체도 감지할 건지, 무시할 액터
 
 	const float AttackRange = Stat->GetTotalStat().AttackRange;
 	const float AttackRadius = 50.0f;

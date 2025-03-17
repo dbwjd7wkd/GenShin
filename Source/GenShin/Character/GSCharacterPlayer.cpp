@@ -8,6 +8,8 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Character/GSCharacterControlData.h"
+#include "UI/GSHUDWidget.h"
+#include "CharacterStat/GSCharacterStatComponent.h"
 
 AGSCharacterPlayer::AGSCharacterPlayer()
 {
@@ -185,5 +187,18 @@ void AGSCharacterPlayer::QuaterMove(const FInputActionValue& Value)
 void AGSCharacterPlayer::Attack()
 {
 	ProcessComboActionCommand();
+}
+
+void AGSCharacterPlayer::SetupHUDWidget(UGSHUDWidget* InHUDWidget)
+{
+	// 스탯의 데이터를 넘겨주고 스탯에 있는 델리게이트에 바인딩 시켜줌.
+	if (InHUDWidget)
+	{
+		InHUDWidget->UpdateStat(Stat->GetBaseStat(), Stat->GetModifierStat());
+		InHUDWidget->UpdateHpBar(Stat->GetCurrentHp());
+
+		Stat->OnStatChanged.AddUObject(InHUDWidget, &UGSHUDWidget::UpdateStat);
+		Stat->OnHpChanged.AddUObject(InHUDWidget, &UGSHUDWidget::UpdateHpBar);
+	}
 }
 
