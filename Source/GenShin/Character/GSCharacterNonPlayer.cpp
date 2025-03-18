@@ -27,6 +27,12 @@ void AGSCharacterNonPlayer::SetDead()
 {
 	Super::SetDead();
 
+	AGSAIController* AIController = Cast<AGSAIController>(GetController());
+	if (AIController)
+	{
+		AIController->StopAI();
+	}
+
 	FTimerHandle DeadTimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda(
 		[&]()

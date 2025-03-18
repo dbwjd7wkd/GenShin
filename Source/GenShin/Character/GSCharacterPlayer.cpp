@@ -10,6 +10,7 @@
 #include "Character/GSCharacterControlData.h"
 #include "UI/GSHUDWidget.h"
 #include "CharacterStat/GSCharacterStatComponent.h"
+#include "Player/GSPlayerController.h"
 
 AGSCharacterPlayer::AGSCharacterPlayer()
 {
@@ -68,7 +69,22 @@ void AGSCharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
+	AGSPlayerController* PlayerController = Cast<AGSPlayerController>(GetController());
+	if (PlayerController)
+	{
+		EnableInput(PlayerController);
+	}
+
 	SetCharacterControl(CurrentCharacterControlType);
+}
+
+void AGSCharacterPlayer::SetDead()
+{
+	AGSPlayerController* PlayerController = Cast<AGSPlayerController>(GetController());
+	if (PlayerController)
+	{
+		DisableInput(PlayerController);
+	}
 }
 
 void AGSCharacterPlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
