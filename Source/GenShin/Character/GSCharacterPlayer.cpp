@@ -80,6 +80,8 @@ void AGSCharacterPlayer::BeginPlay()
 
 void AGSCharacterPlayer::SetDead()
 {
+	Super::SetDead();
+
 	AGSPlayerController* PlayerController = Cast<AGSPlayerController>(GetController());
 	if (PlayerController)
 	{
