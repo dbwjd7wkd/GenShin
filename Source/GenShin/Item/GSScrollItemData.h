@@ -5,28 +5,26 @@
 #include "CoreMinimal.h"
 #include "Item/GSItemData.h"
 #include "GameData/GSCharacterStat.h"
-#include "GSWeaponItemData.generated.h"
+#include "GSScrollItemData.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GENSHIN_API UGSWeaponItemData : public UGSItemData
+class GENSHIN_API UGSScrollItemData : public UGSItemData
 {
 	GENERATED_BODY()
 
 public:
-	UGSWeaponItemData();
+	UGSScrollItemData();
 
 	FPrimaryAssetId GetPrimaryAssetId() const override
 	{
 		return FPrimaryAssetId("GSItemData", GetFName());
 	}
-	
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Mesh)
-	TSoftObjectPtr<USkeletalMesh> WeaponMesh;
 
+public:
 	UPROPERTY(EditAnywhere, Category = Stat)
-	FGSCharacterStat ModifierStat;
+	FGSCharacterStat BaseStat;
+
 };

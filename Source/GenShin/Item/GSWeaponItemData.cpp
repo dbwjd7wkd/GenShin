@@ -3,3 +3,7 @@
 
 #include "Item/GSWeaponItemData.h"
 
+UGSWeaponItemData::UGSWeaponItemData()
+{
+	Type = EItemType::Weapon;
+}

@@ -12,7 +12,7 @@
 #include "UI/GSWidgetComponent.h"
 #include "UI/GSHpBarWidget.h"
 #include "CharacterStat/GSCharacterStatComponent.h"
-#include "Item/GSWeaponItemData.h"
+#include "Item/GSItems.h"
 
 DEFINE_LOG_CATEGORY(LogGSCharacter);
 
@@ -290,7 +290,7 @@ void AGSCharacterBase::TakeItem(UGSItemData* InItemData)
 
 void AGSCharacterBase::DoNothing(UGSItemData* InItemData)
 {
-	UE_LOG(LogGSCharacter, Warning, TEXT("DoNothing"));
+	
 }
 
 void AGSCharacterBase::EquipWeapon(UGSItemData* InItemData)
@@ -303,17 +303,26 @@ void AGSCharacterBase::EquipWeapon(UGSItemData* InItemData)
 			WeaponItemData->WeaponMesh.LoadSynchronous();
 		}
 		Weapon->SetSkeletalMesh(WeaponItemData->WeaponMesh.Get());
+		Stat->SetModifierStat(WeaponItemData->ModifierStat);
 	}
 }
 
 void AGSCharacterBase::DrinkPotion(UGSItemData* InItemData)
 {
-	UE_LOG(LogGSCharacter, Warning, TEXT("DrinkPotion"));
+	UGSPotionItemData* PotionItemData = Cast<UGSPotionItemData>(InItemData);
+	if (PotionItemData)
+	{
+		Stat->HealHp(PotionItemData->HealAmount);
+	}
 }
 
 void AGSCharacterBase::ReadScroll(UGSItemData* InItemData)
 {
-	UE_LOG(LogGSCharacter, Warning, TEXT("ReadScroll"));
+	UGSScrollItemData* ScrollItemData = Cast<UGSScrollItemData>(InItemData);
+	if (ScrollItemData)
+	{
+		Stat->AddBaseStat(ScrollItemData->BaseStat);
+	}
 }
 
 int32 AGSCharacterBase::GetLevel()

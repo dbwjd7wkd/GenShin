@@ -29,14 +29,15 @@ public:
 
 	void SetLevelStat(int32 InNewLevel);
 	FORCEINLINE float GetCurrentLevel() const { return CurrentLevel; }
-
-	FORCEINLINE void SetBaseStat(const FGSCharacterStat& InBaseStat) { BaseStat = InBaseStat; OnStatChanged.Broadcast(GetBaseStat(), GetModifierStat()); }
+	FORCEINLINE void AddBaseStat(const FGSCharacterStat& InAddBaseStat) { BaseStat = InAddBaseStat; OnStatChanged.Broadcast(GetBaseStat(), GetModifierStat()); OnStatChanged.Broadcast(GetBaseStat(), GetModifierStat()); }
+	FORCEINLINE void SetBaseStat(const FGSCharacterStat& InBaseStat) { BaseStat = InBaseStat; OnStatChanged.Broadcast(GetBaseStat(), GetModifierStat()); OnStatChanged.Broadcast(GetBaseStat(), GetModifierStat()); }
 	FORCEINLINE void SetModifierStat(const FGSCharacterStat& InModifierStat) { ModifierStat = InModifierStat; OnStatChanged.Broadcast(GetBaseStat(), GetModifierStat()); }
 	FORCEINLINE const FGSCharacterStat& GetBaseStat() const { return BaseStat; }
 	FORCEINLINE const FGSCharacterStat& GetModifierStat() const { return ModifierStat; }
 
 	FORCEINLINE FGSCharacterStat GetTotalStat() const { return BaseStat + ModifierStat; }
 	FORCEINLINE float GetCurrentHp() { return CurrentHp; }
+	FORCEINLINE void HealHp(float InHealAmount) { CurrentHp = FMath::Clamp(CurrentHp + InHealAmount, 0, GetTotalStat().MaxHp); OnHpChanged.Broadcast(CurrentHp); }
 	FORCEINLINE float GetAttackRadius() const { return AttackRadius; }
 	float ApplyDamage(float InDamage);
 	void SetHp(float NewHp);
