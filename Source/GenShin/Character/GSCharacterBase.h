@@ -7,6 +7,7 @@
 #include "Interface/GSAnimationAttackInterface.h"
 #include "Interface/GSCharacterWidgetInterface.h"
 #include "Interface/GSCharacterItemInterface.h"
+#include "GameData/GSCharacterStat.h"
 #include "GSCharacterBase.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogGSCharacter, Log, All);
@@ -109,4 +110,5 @@ protected:
 public:
 	int32 GetLevel();
 	void SetLevel(int32 InNewLevel);
+	void ApplyStat(const FGSCharacterStat& BaseStat, const FGSCharacterStat& ModifireStat);
 };

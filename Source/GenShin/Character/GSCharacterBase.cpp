@@ -119,6 +119,7 @@ void AGSCharacterBase::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	Stat->OnHpZero.AddUObject(this, &AGSCharacterBase::SetDead);
+	Stat->OnStatChanged.AddUObject(this, &AGSCharacterBase::ApplyStat);
 }
 
 void AGSCharacterBase::SetCharacterControlData(const UGSCharacterControlData* CharacterControlData)
@@ -323,4 +324,10 @@ int32 AGSCharacterBase::GetLevel()
 void AGSCharacterBase::SetLevel(int32 InNewLevel)
 {
 	Stat->SetLevelStat(InNewLevel);
+}
+
+void AGSCharacterBase::ApplyStat(const FGSCharacterStat& BaseStat, const FGSCharacterStat& ModifireStat)
+{
+	float CharacterSpeed = (BaseStat + ModifireStat).MovementSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = CharacterSpeed;
 }
