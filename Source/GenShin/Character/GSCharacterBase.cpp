@@ -276,8 +276,9 @@ void AGSCharacterBase::SetupCharacterWidget(class UGSUserWidget* InUserWidget)
 	UGSHpBarWidget* GSHpBarWidget = Cast<UGSHpBarWidget>(InUserWidget);
 	if (GSHpBarWidget)
 	{
-		GSHpBarWidget->SetMaxHp(Stat->GetTotalStat().MaxHp);
+		GSHpBarWidget->UpdateStat(Stat->GetBaseStat(), Stat->GetModifierStat());
 		GSHpBarWidget->UpdateHpBar(Stat->GetCurrentHp());
+		Stat->OnStatChanged.AddUObject(GSHpBarWidget, &UGSHpBarWidget::UpdateStat);
 		Stat->OnHpChanged.AddUObject(GSHpBarWidget, &UGSHpBarWidget::UpdateHpBar);
 	}
 

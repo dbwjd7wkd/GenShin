@@ -33,6 +33,7 @@ float UGSCharacterStatComponent::ApplyDamage(float InDamage)
 	const float ActualDamage = FMath::Clamp<float>(InDamage, 0, InDamage);
 
 	SetHp(PrevHp - ActualDamage);
+
 	if (CurrentHp <= KINDA_SMALL_NUMBER)
 	{
 		OnHpZero.Broadcast();

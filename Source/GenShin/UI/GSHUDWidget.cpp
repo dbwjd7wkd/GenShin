@@ -12,8 +12,7 @@ UGSHUDWidget::UGSHUDWidget(const FObjectInitializer& ObjectInitializer) : Super(
 
 void UGSHUDWidget::UpdateStat(const FGSCharacterStat& BaseStat, const FGSCharacterStat& ModifierStat)
 {
-	FGSCharacterStat TotalStat = BaseStat + ModifierStat;
-	HpBar->SetMaxHp(TotalStat.MaxHp);
+	HpBar->UpdateStat(BaseStat, ModifierStat);
 
 	CharacterStat->UpdateStat(BaseStat, ModifierStat);
 }
