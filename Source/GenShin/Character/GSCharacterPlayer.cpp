@@ -11,6 +11,7 @@
 #include "UI/GSHUDWidget.h"
 #include "CharacterStat/GSCharacterStatComponent.h"
 #include "Player/GSPlayerController.h"
+#include "Interface/GSGameInterface.h"
 
 AGSCharacterPlayer::AGSCharacterPlayer()
 {
@@ -86,6 +87,13 @@ void AGSCharacterPlayer::SetDead()
 	if (PlayerController)
 	{
 		DisableInput(PlayerController);
+
+		// 플레이어 죽었을 때 UI 띄우기
+		//IGSGameInterface* GSGameMode = Cast<IGSGameInterface>(GetWorld()->GetAuthGameMode());
+		//if (GSGameMode)
+		//{
+		//	GSGameMode->OnPlayerDead();
+		//}
 	}
 }
 

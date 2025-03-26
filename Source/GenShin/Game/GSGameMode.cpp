@@ -2,6 +2,7 @@
 
 
 #include "Game/GSGameMode.h"
+#include "Player/GSPlayerController.h"
 
 AGSGameMode::AGSGameMode()
 {
@@ -16,4 +17,43 @@ AGSGameMode::AGSGameMode()
 	{
 		PlayerControllerClass = PlayerControllerClassRef.Class;
 	}
+
+	ClearScore = 3;
+	CurrentScore = 0;
+	bIsCleared = false;
+}
+
+void AGSGameMode::OnPlayerScoreChanged(int32 NewPlayerScore)
+{
+	CurrentScore = NewPlayerScore;
+
+	AGSPlayerController* GSPlayerController = Cast<AGSPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (GSPlayerController)
+	{
+		GSPlayerController->GameScoreChanged(CurrentScore);
+	}
+
+	if (CurrentScore >= ClearScore)
+	{
+		bIsCleared = true;
+
+		if (GSPlayerController)
+		{
+			GSPlayerController->GameClear();
+		}
+	}
+}
+
+void AGSGameMode::OnPlayerDead()
+{
+	AGSPlayerController* GSPlayerController = Cast<AGSPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (GSPlayerController)
+	{
+		GSPlayerController->GameOver();
+	}
+}
+
+bool AGSGameMode::IsGameCleared()
+{
+	return bIsCleared;
 }
