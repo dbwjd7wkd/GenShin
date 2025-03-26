@@ -3,6 +3,8 @@
 
 #include "Player/GSPlayerController.h"
 #include "UI/GSHUDWidget.h"
+#include "Player/GSSaveGame.h"
+#include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY(LogGSPlayerController);
 
@@ -29,13 +31,13 @@ void AGSPlayerController::GameOver()
 {
 	K2_OnGameOver();
 
-	//// 게임데이터 저장하기
-	//if (!UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Player0"), 0))
-	//{
-	//	UE_LOG(LogGSPlayerController, Error, TEXT("Save Game Error!"));
-	//}
+	// 게임데이터 저장하기
+	if (!UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Player0"), 0))
+	{
+		UE_LOG(LogGSPlayerController, Error, TEXT("Save Game Error!"));
+	}
 
-	//K2_OnGameRetryCount(SaveGameInstance->RetryCount);
+	K2_OnGameRetryCount(SaveGameInstance->RetryCount);
 }
 
 void AGSPlayerController::BeginPlay()
@@ -46,10 +48,17 @@ void AGSPlayerController::BeginPlay()
 	FInputModeGameOnly GameOnlyInputMode;
 	SetInputMode(GameOnlyInputMode);
 
-	// HUD위젯 생성 및 띄우기.
-	GSHUDWidget = CreateWidget<UGSHUDWidget>(this, GSHUDWidgetClass);
-	if (GSHUDWidget)
+	// 저장된 게임 로딩.
+	SaveGameInstance = Cast<UGSSaveGame>(UGameplayStatics::LoadGameFromSlot(TEXT("Player0"), 0));
+	if (SaveGameInstance)
 	{
-		GSHUDWidget->AddToViewport();
+		SaveGameInstance->RetryCount++;
 	}
+	else
+	{
+		SaveGameInstance = NewObject<UGSSaveGame>();
+		SaveGameInstance->RetryCount = 0;
+	}
+
+	K2_OnGameRetryCount(SaveGameInstance->RetryCount);
 }

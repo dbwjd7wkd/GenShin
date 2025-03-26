@@ -7,7 +7,8 @@
 #include "Physics/GSCollision.h"
 #include "Character/GSCharacterNonPlayer.h"
 #include "Item/GSItemBox.h"
-//#include "Interface/GSGameInterface.h"
+#include "Interface/GSGameInterface.h"
+#include "Game/GSGameMode.h"
 
 AGSStageGimmick::AGSStageGimmick()
 {
@@ -201,7 +202,15 @@ void AGSStageGimmick::SetChooseNext()
 
 void AGSStageGimmick::OnOpponentDestroyed(AActor* DestroyedActor)
 {
-	//IGSGameInterface* GSGameMode = Cast<IGSGameInterface>(GetWorld()->GetAuthGameMode());
+	IGSGameInterface* GSGameMode = Cast<IGSGameInterface>(GetWorld()->GetAuthGameMode());
+	if (GSGameMode)
+	{
+		GSGameMode->OnPlayerScoreChanged(CurrentStageNum);
+		if (GSGameMode->IsGameCleared())
+		{
+			return;
+		}
+	}
 
 	SetState(EStageState::REWARD);
 }
