@@ -12,7 +12,7 @@
 #include "CharacterStat/GSCharacterStatComponent.h"
 #include "Player/GSPlayerController.h"
 #include "Interface/GSGameInterface.h"
-#include "Game/GSGameMode.h"
+#include "GameFramework/GameModeBase.h"
 
 AGSCharacterPlayer::AGSCharacterPlayer()
 {

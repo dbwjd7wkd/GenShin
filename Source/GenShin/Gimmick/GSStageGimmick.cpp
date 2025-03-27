@@ -8,7 +8,7 @@
 #include "Character/GSCharacterNonPlayer.h"
 #include "Item/GSItemBox.h"
 #include "Interface/GSGameInterface.h"
-#include "Game/GSGameMode.h"
+#include "GameFramework/GameModeBase.h"
 
 AGSStageGimmick::AGSStageGimmick()
 {
